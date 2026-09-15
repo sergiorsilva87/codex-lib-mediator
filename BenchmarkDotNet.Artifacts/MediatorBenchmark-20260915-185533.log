@@ -1,0 +1,195 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 1 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/" /p:OutDir="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0/" /p:OutputPath="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0/" /p:PublishDir="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/publish/" in /home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1
+// command took 1.64 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/" /p:OutDir="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0/" /p:OutputPath="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0/" /p:PublishDir="/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/publish/" --output "/home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0/" in /home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1
+// command took 11.34 sec and exited with 0
+// ***** Done, took 00:00:13 (13.05 sec)   *****
+// Found 1 benchmarks:
+//   MediatorBenchmark.SimpleOperation: DefaultJob
+
+// **************************
+// Benchmark: MediatorBenchmark.SimpleOperation: DefaultJob
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet CodexLibMediatorBenchmark-DefaultJob-1.dll --anonymousPipes 112 113 --benchmarkName MediatorBenchmark.SimpleOperation --job Default --benchmarkId 0 in /home/sergio-pc/projects/micro/CodexLibMediator/CodexLibMediatorBenchmark/bin/Release/net10.0/CodexLibMediatorBenchmark-DefaultJob-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+// GC=Concurrent Workstation
+// HardwareIntrinsics=AVX2+BMI1+BMI2+F16C+FMA+LZCNT+MOVBE,AVX,SSE3+SSSE3+SSE4.1+SSE4.2+POPCNT,X86Base+SSE+SSE2,AES+PCLMUL VectorSize=256
+// Job: DefaultJob
+
+OverheadJitting  1: 1 op, 282260.00 ns, 282.2600 us/op
+WorkloadJitting  1: 1 op, 342843.00 ns, 342.8430 us/op
+
+OverheadJitting  2: 16 op, 605906.00 ns, 37.8691 us/op
+WorkloadJitting  2: 16 op, 608877.00 ns, 38.0548 us/op
+
+WorkloadPilot    1: 16 op, 641.00 ns, 40.0625 ns/op
+WorkloadPilot    2: 32 op, 625.00 ns, 19.5313 ns/op
+WorkloadPilot    3: 64 op, 626.00 ns, 9.7813 ns/op
+WorkloadPilot    4: 128 op, 637.00 ns, 4.9766 ns/op
+WorkloadPilot    5: 256 op, 926.00 ns, 3.6172 ns/op
+WorkloadPilot    6: 512 op, 1271.00 ns, 2.4824 ns/op
+WorkloadPilot    7: 1024 op, 2382.00 ns, 2.3262 ns/op
+WorkloadPilot    8: 2048 op, 4326.00 ns, 2.1123 ns/op
+WorkloadPilot    9: 4096 op, 8399.00 ns, 2.0505 ns/op
+WorkloadPilot   10: 8192 op, 17845.00 ns, 2.1783 ns/op
+WorkloadPilot   11: 16384 op, 34069.00 ns, 2.0794 ns/op
+WorkloadPilot   12: 32768 op, 67627.00 ns, 2.0638 ns/op
+WorkloadPilot   13: 65536 op, 134826.00 ns, 2.0573 ns/op
+WorkloadPilot   14: 131072 op, 269423.00 ns, 2.0555 ns/op
+WorkloadPilot   15: 262144 op, 546060.00 ns, 2.0831 ns/op
+WorkloadPilot   16: 524288 op, 1067045.00 ns, 2.0352 ns/op
+WorkloadPilot   17: 1048576 op, 2171218.00 ns, 2.0706 ns/op
+WorkloadPilot   18: 2097152 op, 4279646.00 ns, 2.0407 ns/op
+WorkloadPilot   19: 4194304 op, 8478100.00 ns, 2.0213 ns/op
+WorkloadPilot   20: 8388608 op, 17810536.00 ns, 2.1232 ns/op
+WorkloadPilot   21: 16777216 op, 46454626.00 ns, 2.7689 ns/op
+WorkloadPilot   22: 33554432 op, 78251123.00 ns, 2.3321 ns/op
+WorkloadPilot   23: 67108864 op, 145929353.00 ns, 2.1745 ns/op
+WorkloadPilot   24: 134217728 op, 280102807.00 ns, 2.0869 ns/op
+WorkloadPilot   25: 268435456 op, 610307736.00 ns, 2.2736 ns/op
+
+OverheadWarmup   1: 268435456 op, 613116467.00 ns, 2.2840 ns/op
+OverheadWarmup   2: 268435456 op, 539167364.00 ns, 2.0086 ns/op
+OverheadWarmup   3: 268435456 op, 549870374.00 ns, 2.0484 ns/op
+OverheadWarmup   4: 268435456 op, 556844633.00 ns, 2.0744 ns/op
+OverheadWarmup   5: 268435456 op, 550010331.00 ns, 2.0489 ns/op
+OverheadWarmup   6: 268435456 op, 534765531.00 ns, 1.9922 ns/op
+OverheadWarmup   7: 268435456 op, 543892381.00 ns, 2.0262 ns/op
+OverheadWarmup   8: 268435456 op, 526134047.00 ns, 1.9600 ns/op
+
+OverheadActual   1: 268435456 op, 523662929.00 ns, 1.9508 ns/op
+OverheadActual   2: 268435456 op, 522136014.00 ns, 1.9451 ns/op
+OverheadActual   3: 268435456 op, 520488911.00 ns, 1.9390 ns/op
+OverheadActual   4: 268435456 op, 521343529.00 ns, 1.9422 ns/op
+OverheadActual   5: 268435456 op, 518427278.00 ns, 1.9313 ns/op
+OverheadActual   6: 268435456 op, 523279416.00 ns, 1.9494 ns/op
+OverheadActual   7: 268435456 op, 522750698.00 ns, 1.9474 ns/op
+OverheadActual   8: 268435456 op, 519586653.00 ns, 1.9356 ns/op
+OverheadActual   9: 268435456 op, 519622725.00 ns, 1.9357 ns/op
+OverheadActual  10: 268435456 op, 521107812.00 ns, 1.9413 ns/op
+OverheadActual  11: 268435456 op, 518375593.00 ns, 1.9311 ns/op
+OverheadActual  12: 268435456 op, 519821545.00 ns, 1.9365 ns/op
+OverheadActual  13: 268435456 op, 523387367.00 ns, 1.9498 ns/op
+OverheadActual  14: 268435456 op, 522215563.00 ns, 1.9454 ns/op
+OverheadActual  15: 268435456 op, 528556073.00 ns, 1.9690 ns/op
+
+WorkloadWarmup   1: 268435456 op, 530745928.00 ns, 1.9772 ns/op
+WorkloadWarmup   2: 268435456 op, 526283810.00 ns, 1.9606 ns/op
+WorkloadWarmup   3: 268435456 op, 535236034.00 ns, 1.9939 ns/op
+WorkloadWarmup   4: 268435456 op, 542725980.00 ns, 2.0218 ns/op
+WorkloadWarmup   5: 268435456 op, 551444081.00 ns, 2.0543 ns/op
+WorkloadWarmup   6: 268435456 op, 550307066.00 ns, 2.0501 ns/op
+WorkloadWarmup   7: 268435456 op, 525501378.00 ns, 1.9576 ns/op
+WorkloadWarmup   8: 268435456 op, 525435195.00 ns, 1.9574 ns/op
+WorkloadWarmup   9: 268435456 op, 534203899.00 ns, 1.9901 ns/op
+WorkloadWarmup  10: 268435456 op, 535867317.00 ns, 1.9963 ns/op
+WorkloadWarmup  11: 268435456 op, 543136053.00 ns, 2.0233 ns/op
+WorkloadWarmup  12: 268435456 op, 534588749.00 ns, 1.9915 ns/op
+
+// BeforeActualRun
+WorkloadActual   1: 268435456 op, 518919823.00 ns, 1.9331 ns/op
+WorkloadActual   2: 268435456 op, 528704721.00 ns, 1.9696 ns/op
+WorkloadActual   3: 268435456 op, 549253980.00 ns, 2.0461 ns/op
+WorkloadActual   4: 268435456 op, 530243638.00 ns, 1.9753 ns/op
+WorkloadActual   5: 268435456 op, 530380661.00 ns, 1.9758 ns/op
+WorkloadActual   6: 268435456 op, 530460429.00 ns, 1.9761 ns/op
+WorkloadActual   7: 268435456 op, 520483535.00 ns, 1.9390 ns/op
+WorkloadActual   8: 268435456 op, 533345052.00 ns, 1.9869 ns/op
+WorkloadActual   9: 268435456 op, 521515672.00 ns, 1.9428 ns/op
+WorkloadActual  10: 268435456 op, 518402125.00 ns, 1.9312 ns/op
+WorkloadActual  11: 268435456 op, 524280077.00 ns, 1.9531 ns/op
+WorkloadActual  12: 268435456 op, 527041750.00 ns, 1.9634 ns/op
+WorkloadActual  13: 268435456 op, 518721494.00 ns, 1.9324 ns/op
+WorkloadActual  14: 268435456 op, 519564168.00 ns, 1.9355 ns/op
+WorkloadActual  15: 268435456 op, 518750731.00 ns, 1.9325 ns/op
+
+// AfterActualRun
+WorkloadResult   1: 268435456 op, 0.00 ns, 0.0000 ns/op
+WorkloadResult   2: 268435456 op, 7361192.00 ns, 0.0274 ns/op
+WorkloadResult   3: 268435456 op, 8900109.00 ns, 0.0332 ns/op
+WorkloadResult   4: 268435456 op, 9037132.00 ns, 0.0337 ns/op
+WorkloadResult   5: 268435456 op, 9116900.00 ns, 0.0340 ns/op
+WorkloadResult   6: 268435456 op, 0.00 ns, 0.0000 ns/op
+WorkloadResult   7: 268435456 op, 12001523.00 ns, 0.0447 ns/op
+WorkloadResult   8: 268435456 op, 172143.00 ns, 0.0006 ns/op
+WorkloadResult   9: 268435456 op, 0.00 ns, 0.0000 ns/op
+WorkloadResult  10: 268435456 op, 2936548.00 ns, 0.0109 ns/op
+WorkloadResult  11: 268435456 op, 5698221.00 ns, 0.0212 ns/op
+WorkloadResult  12: 268435456 op, 0.00 ns, 0.0000 ns/op
+WorkloadResult  13: 268435456 op, 0.00 ns, 0.0000 ns/op
+WorkloadResult  14: 268435456 op, 0.00 ns, 0.0000 ns/op
+
+// AfterAll
+// Benchmark Process 73475 has exited with code 0.
+
+Mean = 0.015 ns, StdErr = 0.004 ns (30.62%), N = 14, StdDev = 0.017 ns
+Min = 0.000 ns, Q1 = 0.000 ns, Median = 0.006 ns, Q3 = 0.032 ns, Max = 0.045 ns
+IQR = 0.032 ns, LowerFence = -0.048 ns, UpperFence = 0.079 ns
+ConfidenceInterval = [-0.004 ns; 0.034 ns] (CI 99.9%), Margin = 0.019 ns (129.24% of Mean)
+Skewness = 0.42, Kurtosis = 1.37, MValue = 2
+
+// ** Remained 0 (0,0%) benchmark(s) to run. Estimated finish 2026-09-15 18:56 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/results/MediatorBenchmark-report.csv
+  BenchmarkDotNet.Artifacts/results/MediatorBenchmark-report-github.md
+  BenchmarkDotNet.Artifacts/results/MediatorBenchmark-report.html
+
+// * Detailed results *
+MediatorBenchmark.SimpleOperation: DefaultJob
+Runtime = .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3; GC = Concurrent Workstation
+Mean = 0.015 ns, StdErr = 0.004 ns (30.62%), N = 14, StdDev = 0.017 ns
+Min = 0.000 ns, Q1 = 0.000 ns, Median = 0.006 ns, Q3 = 0.032 ns, Max = 0.045 ns
+IQR = 0.032 ns, LowerFence = -0.048 ns, UpperFence = 0.079 ns
+ConfidenceInterval = [-0.004 ns; 0.034 ns] (CI 99.9%), Margin = 0.019 ns (129.24% of Mean)
+Skewness = 0.42, Kurtosis = 1.37, MValue = 2
+-------------------- Histogram --------------------
+[0.000 ns ; 0.018 ns) | @@@@@@@@
+[0.018 ns ; 0.037 ns) | @@@@@
+[0.037 ns ; 0.054 ns) | @
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.5 LTS (Noble Numbat)
+Intel Core i5-4590 CPU 3.30GHz (Max: 3,519.29GHz) (Haswell), 1 CPU, 4 logical and 4 physical cores
+.NET SDK 10.0.112
+  [Host]     : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 10.0.12 (10.0.12, 10.0.1226.42308), X64 RyuJIT x86-64-v3
+
+
+| Method          | Mean      | Error     | StdDev    | Median    |
+|---------------- |----------:|----------:|----------:|----------:|
+| SimpleOperation | 0.0147 ns | 0.0190 ns | 0.0168 ns | 0.0058 ns |
+
+// * Warnings *
+ZeroMeasurement
+  MediatorBenchmark.SimpleOperation: Default -> The method duration is indistinguishable from the empty method duration
+
+// * Hints *
+Outliers
+  MediatorBenchmark.SimpleOperation: Default -> 1 outlier  was  removed (2.05 ns)
+
+// * Legends *
+  Mean   : Arithmetic mean of all measurements
+  Error  : Half of 99.9% confidence interval
+  StdDev : Standard deviation of all measurements
+  Median : Value separating the higher half of all measurements (50th percentile)
+  1 ns   : 1 Nanosecond (0.000000001 sec)
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:28 (28.19 sec), executed benchmarks: 1
+
+Global total time: 00:00:41 (41.44 sec), executed benchmarks: 1
+// * Artifacts cleanup *
+Artifacts cleanup is finished

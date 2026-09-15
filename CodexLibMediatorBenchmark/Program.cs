@@ -1,3 +1,19 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 
-Console.WriteLine("Hello, World!");
+public class MediatorBenchmark
+{
+    [Benchmark]
+    public int SimpleOperation()
+    {
+        return 123;
+    }
+}
+
+internal static class Program
+{
+    public static void Main(string[] args)
+    {
+        BenchmarkRunner.Run<MediatorBenchmark>();
+    }
+}
