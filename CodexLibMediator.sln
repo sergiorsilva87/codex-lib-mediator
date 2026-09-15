@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodexLibMediator", "CodexLibMediator\CodexLibMediator.csproj", "{806D53D6-7BDF-4986-A714-E2183DD9B72E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodexLibMediatorTest", "CodexLibMediatorTest\CodexLibMediatorTest.csproj", "{81436E72-87C7-4777-8A33-5030CE69A2E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodexLibMediatorBenchmark", "CodexLibMediatorBenchmark\CodexLibMediatorBenchmark.csproj", "{51F4D4B0-CF76-4192-8D9F-257BA3E3EC12}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{806D53D6-7BDF-4986-A714-E2183DD9B72E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{806D53D6-7BDF-4986-A714-E2183DD9B72E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{806D53D6-7BDF-4986-A714-E2183DD9B72E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{806D53D6-7BDF-4986-A714-E2183DD9B72E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81436E72-87C7-4777-8A33-5030CE69A2E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81436E72-87C7-4777-8A33-5030CE69A2E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81436E72-87C7-4777-8A33-5030CE69A2E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81436E72-87C7-4777-8A33-5030CE69A2E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51F4D4B0-CF76-4192-8D9F-257BA3E3EC12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51F4D4B0-CF76-4192-8D9F-257BA3E3EC12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51F4D4B0-CF76-4192-8D9F-257BA3E3EC12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51F4D4B0-CF76-4192-8D9F-257BA3E3EC12}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
