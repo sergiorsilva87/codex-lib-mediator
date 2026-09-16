@@ -131,7 +131,7 @@ public class PipelineBehaviorTest
         Assert.Equal("Handler failed.", exception.Message);
         Assert.Equal(["Behavior-Before", "Handler"], execution);
     }
-    
+
     [Fact]
     public async Task SendAsync_ShouldThrowWhenHandlerIsNotRegistered()
     {
@@ -142,6 +142,117 @@ public class PipelineBehaviorTest
         var mediator = serviceProvider.GetRequiredService<IMediator>();
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync(new UnregisteredQuery()));
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldExecuteCommandWithoutPipelineBehaviors()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(NoBehaviorCommandHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await mediator.SendAsync(new NoBehaviorCommand());
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(["Handler"], execution);
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldExecuteSinglePipelineBehaviorWithoutResult()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(SingleBehaviorCommandHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await mediator.SendAsync(new SingleBehaviorCommand());
+
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(
+            [
+                "Before",
+                "Handler",
+                "After"
+            ],
+            execution);
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldExecuteMultiplePipelineBehaviorsWithoutResult()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(MultipleBehaviorCommandHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await mediator.SendAsync(new MultipleBehaviorCommand());
+
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(
+            [
+                "Logging-Before",
+                "Validation-Before",
+                "Handler",
+                "Validation-After",
+                "Logging-After"
+            ],
+            execution);
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldPropagateCancellationTokenToPipelineBehaviorWithoutResult()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(CancellationTokenCommandHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        using var cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = cancellationTokenSource.Token;
+
+        await mediator.SendAsync(new CancellationTokenCommand(), cancellationToken);
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(
+            [
+                "Behavior-Token-Received",
+                "Handler-Token-Received"
+            ],
+            execution);
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldPropagateHandlerExceptionThroughPipelineWithoutResult()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(ExceptionCommandHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync(new ExceptionCommand()));
+
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal("Handler failed.", exception.Message);
+        Assert.Equal(["Behavior-Before", "Handler"], execution);
     }
 
     private sealed record UnregisteredQuery : IQuery<long>;
@@ -298,6 +409,125 @@ public class PipelineBehaviorTest
 
             execution.Add("Behavior-After");
             return result;
+        }
+    }
+
+    private sealed record NoBehaviorCommand : ICommand;
+
+    private sealed class NoBehaviorCommandHandler(List<string> execution) : ICommandHandler<NoBehaviorCommand>
+    {
+        public Task HandleAsync(NoBehaviorCommand command, CancellationToken cancellationToken)
+        {
+            execution.Add("Handler");
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed record SingleBehaviorCommand : ICommand;
+
+    private sealed class SingleBehaviorCommandHandler(List<string> execution) : ICommandHandler<SingleBehaviorCommand>
+    {
+        public Task HandleAsync(SingleBehaviorCommand command, CancellationToken cancellationToken)
+        {
+            execution.Add("Handler");
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class SingleCommandBehavior(List<string> execution) : IPipelineBehavior<SingleBehaviorCommand>
+    {
+        public async Task HandleAsync(SingleBehaviorCommand request,
+            CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("Before");
+            await next();
+            execution.Add("After");
+        }
+    }
+
+
+    private sealed record MultipleBehaviorCommand : ICommand;
+
+    private sealed class MultipleBehaviorCommandHandler(List<string> execution) :
+        ICommandHandler<MultipleBehaviorCommand>
+    {
+        public Task HandleAsync(MultipleBehaviorCommand command, CancellationToken cancellationToken)
+        {
+            execution.Add("Handler");
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class LoggingCommandBehavior(List<string> execution) : IPipelineBehavior<MultipleBehaviorCommand>
+    {
+        public async Task HandleAsync(MultipleBehaviorCommand request,
+            CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("Logging-Before");
+            await next();
+            execution.Add("Logging-After");
+        }
+    }
+
+    private sealed class ValidationCommandBehavior(List<string> execution) : IPipelineBehavior<MultipleBehaviorCommand>
+    {
+        public async Task HandleAsync(MultipleBehaviorCommand request,
+            CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("Validation-Before");
+            await next();
+            execution.Add("Validation-After");
+        }
+    }
+
+    private sealed record CancellationTokenCommand : ICommand;
+
+    private sealed class CancellationTokenCommandHandler(List<string> execution) : ICommandHandler<CancellationTokenCommand>
+    {
+        public Task HandleAsync(CancellationTokenCommand command, CancellationToken cancellationToken)
+        {
+            if (cancellationToken == CancellationToken.None)
+                throw new InvalidOperationException(
+                    "The CancellationToken was not propagated to the Handler.");
+
+            execution.Add("Handler-Token-Received");
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class CancellationTokenCommandBehavior(List<string> execution) : IPipelineBehavior<CancellationTokenCommand>
+    {
+        public async Task HandleAsync(CancellationTokenCommand request,
+            CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            if (cancellationToken == CancellationToken.None)
+                throw new InvalidOperationException(
+                    "The CancellationToken was not propagated to the Behavior.");
+
+            execution.Add("Behavior-Token-Received");
+            await next();
+        }
+    }
+
+    private sealed record ExceptionCommand : ICommand;
+
+    private sealed class ExceptionCommandHandler(List<string> execution) : ICommandHandler<ExceptionCommand>
+    {
+        public Task HandleAsync(ExceptionCommand command, CancellationToken cancellationToken)
+        {
+            execution.Add("Handler");
+            throw new InvalidOperationException("Handler failed.");
+        }
+    }
+
+    private sealed class ExceptionCommandBehavior(List<string> execution) : IPipelineBehavior<ExceptionCommand>
+    {
+        public async Task HandleAsync(ExceptionCommand request,
+            CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("Behavior-Before");
+            await next();
+            execution.Add("Behavior-After");
         }
     }
 }

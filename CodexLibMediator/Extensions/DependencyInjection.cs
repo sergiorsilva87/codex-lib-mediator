@@ -39,10 +39,11 @@ public static class DependencyInjection
                 var arguments = handlerInterface.GetGenericArguments();
 
                 var requestType = arguments[0];
-                if (definition == typeof(ICommandHandler<>))
+
+                if (definition == typeof(ICommandHandler<>) || definition == typeof(IRequestHandler<>))
                 {
-                    var commandInvokerType = typeof(RequestHandlerInvoker<>).MakeGenericType(requestType);
-                    services.AddTransient(commandInvokerType);
+                    var invokerType = typeof(PipelineHandlerInvoker<>).MakeGenericType(requestType);
+                    services.AddTransient(invokerType);
                     continue;
                 }
 

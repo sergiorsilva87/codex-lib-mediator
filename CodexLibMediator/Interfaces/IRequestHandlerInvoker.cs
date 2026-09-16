@@ -2,5 +2,10 @@ namespace CodexLibMediator.Interfaces;
 
 internal interface IRequestHandlerInvoker
 {
-    Task<object?> InvokeAsync(object request, CancellationToken cancellationToken);
+    Task InvokeAsync(object request, CancellationToken cancellationToken);
+}
+
+internal interface IRequestHandlerInvoker<TResult>
+{
+    Task<TResult> InvokeAsync(object request, CancellationToken cancellationToken);
 }
