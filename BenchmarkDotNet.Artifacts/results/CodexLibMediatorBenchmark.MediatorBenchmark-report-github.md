@@ -1,0 +1,27 @@
+```
+
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.9168/25H2/2025Update/HudsonValley2)
+13th Gen Intel Core i9-13980HX 2.20GHz, 1 CPU, 32 logical and 24 physical cores
+.NET SDK 10.0.103
+  [Host]     : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v3
+  DefaultJob : .NET 10.0.3 (10.0.3, 10.0.326.7603), X64 RyuJIT x86-64-v3
+
+
+```
+| Method                     | Mean       | Error     | StdDev    | Median     | Ratio | RatioSD | Gen0   | Allocated | Alloc Ratio |
+|--------------------------- |-----------:|----------:|----------:|-----------:|------:|--------:|-------:|----------:|------------:|
+| SendAsync                  |  70.308 ns | 1.3073 ns | 3.1323 ns |  69.151 ns |  1.00 |    0.06 | 0.0246 |     464 B |        1.00 |
+| SendAsyncWithOneBehavior   | 102.417 ns | 2.0674 ns | 5.2996 ns | 101.146 ns |  1.46 |    0.10 | 0.0386 |     728 B |        1.57 |
+| SendAsyncWithTwoBehaviors  | 119.746 ns | 2.3101 ns | 2.9215 ns | 118.955 ns |  1.71 |    0.08 | 0.0501 |     944 B |        2.03 |
+| SendAsyncWithFiveBehaviors | 191.220 ns | 3.8343 ns | 6.1917 ns | 192.550 ns |  2.72 |    0.14 | 0.0844 |    1592 B |        3.43 |
+| GetOneBehavior             |   7.624 ns | 0.1788 ns | 0.4249 ns |   7.393 ns |  0.11 |    0.01 | 0.0030 |      56 B |        0.12 |
+| GetOneBehaviorToArray      |  18.610 ns | 0.3964 ns | 0.8362 ns |  18.446 ns |  0.27 |    0.02 | 0.0046 |      88 B |        0.19 |
+| BuildPipelineOneBehavior   |  12.339 ns | 0.3261 ns | 0.9564 ns |  12.254 ns |  0.18 |    0.02 | 0.0068 |     128 B |        0.28 |
+| BuildPipelineFiveBehaviors |  69.439 ns | 2.0301 ns | 5.9858 ns |  66.387 ns |  0.99 |    0.09 | 0.0408 |     768 B |        1.66 |
+| ResolveInvoker             |   5.909 ns | 0.0648 ns | 0.0575 ns |   5.917 ns |  0.08 |    0.00 | 0.0013 |      24 B |        0.05 |
+| MakeGenericInvokerType     |  89.741 ns | 1.7984 ns | 2.2744 ns |  89.147 ns |  1.28 |    0.06 | 0.0085 |     160 B |        0.34 |
+| GetNoBehavior              |   4.777 ns | 0.0463 ns | 0.0433 ns |   4.768 ns |  0.07 |    0.00 |      - |         - |        0.00 |
+| GetNoBehaviorToArray       |   8.990 ns | 0.1457 ns | 0.1363 ns |   9.007 ns |  0.13 |    0.01 |      - |         - |        0.00 |
+| ResolveNoBehaviorHandler   |   5.965 ns | 0.0650 ns | 0.0576 ns |   5.938 ns |  0.09 |    0.00 | 0.0013 |      24 B |        0.05 |
+| DirectHandler              |  15.200 ns | 0.3269 ns | 0.6895 ns |  15.003 ns |  0.22 |    0.01 | 0.0089 |     168 B |        0.36 |
+| InvokePipelineDirectly     |  32.056 ns | 0.6425 ns | 0.6310 ns |  31.956 ns |  0.46 |    0.02 | 0.0153 |     288 B |        0.62 |
