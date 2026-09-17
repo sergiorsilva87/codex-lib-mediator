@@ -39,6 +39,12 @@ public static class DependencyInjection
                 var arguments = handlerInterface.GetGenericArguments();
 
                 var requestType = arguments[0];
+                if (definition == typeof(INotificationHandler<>))
+                {
+                    var invokerType = typeof(NotificationHandlerInvoker<>).MakeGenericType(requestType);
+                    services.AddTransient(invokerType);
+                    continue;
+                }
 
                 if (definition == typeof(ICommandHandler<>) || definition == typeof(IRequestHandler<>))
                 {
@@ -85,7 +91,8 @@ public static class DependencyInjection
                    definition == typeof(ICommandHandler<>) ||
                    definition == typeof(ICommandHandler<,>) ||
                    definition == typeof(IRequestHandler<>) ||
-                   definition == typeof(IRequestHandler<,>)
+                   definition == typeof(IRequestHandler<,>) ||
+                   definition == typeof(INotificationHandler<>)
                );
     }
 
