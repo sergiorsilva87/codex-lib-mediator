@@ -254,6 +254,28 @@ public class PipelineBehaviorTest
         Assert.Equal("Handler failed.", exception.Message);
         Assert.Equal(["Behavior-Before", "Handler"], execution);
     }
+    
+    [Fact]
+    public void PipelineBehaviors_ShouldBeResolvedInRegistrationOrder()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<List<string>>();
+
+        services.AddTransient<IPipelineBehavior<MultipleBehaviorQuery, long>, ValidationBehavior>();
+        services.AddTransient<IPipelineBehavior<MultipleBehaviorQuery, long>, LoggingBehavior>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var behaviors = serviceProvider
+            .GetServices<IPipelineBehavior<MultipleBehaviorQuery, long>>()
+            .ToArray();
+
+        Assert.Equal(
+            [
+                typeof(ValidationBehavior),
+                typeof(LoggingBehavior)
+            ],
+            behaviors.Select(x => x.GetType()));
+    }
 
     private sealed record UnregisteredQuery : IQuery<long>;
 

@@ -7,6 +7,8 @@ namespace CodexLibMediator.Extensions;
 
 public static class DependencyInjection
 {
+    internal List<Type> BehaviorTypes { get; } = [];
+    
     public static IServiceCollection AddCodexMediator(this IServiceCollection services, Assembly assembly)
     {
         services.AddScoped<IMediator, Mediator>();
@@ -14,6 +16,25 @@ public static class DependencyInjection
         RegisterHandlers(services, assembly);
         RegisterBehaviors(services, assembly);
         return services;
+    }
+    
+    public static IServiceCollection AddCodexMediator(this IServiceCollection services,
+        Assembly assembly, Action<CodexMediatorOptions> configure)
+    {
+        services.AddScoped<IMediator, Mediator>();
+        RegisterHandlers(services, assembly);
+
+        var options = new CodexMediatorOptions();
+        configure(options);
+
+        RegisterBehaviors(services, assembly, options);
+        return services;
+    }
+    
+    public CodexMediatorOptions AddBehavior<TBehavior>() where TBehavior : class
+    {
+        BehaviorTypes.Add(typeof(TBehavior));
+        return this;
     }
 
     private static void RegisterHandlers(IServiceCollection services, Assembly assembly)
@@ -76,21 +97,34 @@ public static class DependencyInjection
         }
     }
 
-    private static void RegisterBehaviors(IServiceCollection services, Assembly assembly)
+    private static void RegisterBehaviors(IServiceCollection services, Assembly assembly, CodexMediatorOptions? options)
     {
-        var behaviorTypes = assembly.GetTypes().Where(type =>
+        if (options is { BehaviorTypes.Count: > 0 })
+        {
+            foreach (var behaviorType in options.BehaviorTypes)
+                RegisterBehavior(services, behaviorType);
+
+            return;
+        }
+
+        var behaviorTypes = assembly.GetTypes()
+            .Where(type =>
                 type is { IsClass: true, IsAbstract: false } &&
                 type.GetInterfaces().Any(IsPipelineBehaviorInterface))
+            .OrderBy(type => type.FullName)
             .ToArray();
 
         foreach (var behaviorType in behaviorTypes)
-        {
-            var behaviorInterfaces = behaviorType
-                .GetInterfaces().Where(IsPipelineBehaviorInterface);
+            RegisterBehavior(services, behaviorType);
+    }
+    
+    private static void RegisterBehavior(IServiceCollection services, Type behaviorType)
+    {
+        var behaviorInterfaces = behaviorType
+            .GetInterfaces().Where(IsPipelineBehaviorInterface);
 
-            foreach (var behaviorInterface in behaviorInterfaces)
-                services.AddTransient(behaviorInterface, behaviorType);
-        }
+        foreach (var behaviorInterface in behaviorInterfaces)
+            services.AddTransient(behaviorInterface, behaviorType);
     }
 
     private static bool IsHandlerInterface(Type type)
