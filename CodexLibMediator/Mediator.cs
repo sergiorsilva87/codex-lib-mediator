@@ -8,10 +8,12 @@ namespace CodexLibMediator;
 internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 {
     private static readonly ConcurrentDictionary<Type, Type> NotificationInvokerTypes = new();
-    
+
     private static readonly ConcurrentDictionary<Type, Type> RequestInvokerTypes = new();
     private static readonly ConcurrentDictionary<(Type Request, Type Result), Type> PipelineInvokerTypes = new();
-    
+
+    private static readonly ConcurrentDictionary<(Type Request, Type Result), Type> StreamInvokerTypes = new();
+
     public Task PublishAsync(INotification notification, CancellationToken cancellationToken = default)
     {
         var notificationType = notification.GetType();
@@ -21,7 +23,7 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
         var invoker = (INotificationHandlerInvoker)ActivatorUtilities.CreateInstance(serviceProvider, invokerType);
         return invoker.InvokeAsync(notification, cancellationToken);
     }
-    
+
     public Task SendAsync(IRequest request, CancellationToken cancellationToken = default)
     {
         var requestType = request.GetType();
@@ -40,5 +42,16 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 
         var invoker = (IRequestHandlerInvoker<TResult>)serviceProvider.GetRequiredService(invokerType);
         return invoker.InvokeAsync(request, cancellationToken);
+    }
+
+    public IAsyncEnumerable<TResult> StreamAsync<TResult>(IStreamRequest<TResult> request, CancellationToken cancellationToken = default)
+    {
+        var requestType = request.GetType();
+        var invokerType = StreamInvokerTypes.GetOrAdd(
+            (requestType, typeof(TResult)), static key =>
+                typeof(StreamRequestHandlerInvoker<,>).MakeGenericType(key.Request, key.Result));
+
+        var invoker = (IStreamRequestHandlerInvoker)serviceProvider.GetRequiredService(invokerType);
+        return (IAsyncEnumerable<TResult>)invoker.InvokeAsync(request, cancellationToken);
     }
 }

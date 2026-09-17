@@ -4,7 +4,7 @@ namespace CodexLibMediator.Interfaces;
 
 public interface IPipelineBehavior<in TRequest> where TRequest : IRequest
 {
-    Task HandleAsync( TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next);
+    Task HandleAsync(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next);
 }
 
 public interface IPipelineBehavior<in TRequest, TResult> where TRequest : IRequest<TResult>

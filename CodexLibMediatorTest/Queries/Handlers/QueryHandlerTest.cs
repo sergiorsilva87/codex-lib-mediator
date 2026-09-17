@@ -15,7 +15,7 @@ public class QueryHandlerTest
         var result = await handler.HandleAsync(query, CancellationToken.None);
         Assert.Equal(123L, result);
     }
-    
+
     [Fact]
     public async Task SendAsync_ShouldExecuteQueryHandler()
     {

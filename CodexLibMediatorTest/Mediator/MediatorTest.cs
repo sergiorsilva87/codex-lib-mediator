@@ -19,7 +19,7 @@ public class MediatorTest
         var result = await mediator.SendAsync(new GetPlayerQuery(123));
         Assert.Equal(123, result);
     }
-    
+
     [Fact]
     public async Task SendAsync_ShouldExecuteCommandHandlerWithResult()
     {
@@ -32,7 +32,7 @@ public class MediatorTest
         var result = await mediator.SendAsync(new CreatePlayerCommand());
         Assert.Equal(123L, result);
     }
-    
+
     [Fact]
     public async Task SendAsync_ShouldExecuteCommandHandlerWithoutResult()
     {
@@ -44,7 +44,7 @@ public class MediatorTest
         var mediator = serviceProvider.GetRequiredService<IMediator>();
         await mediator.SendAsync(new DeletePlayerCommand());
     }
-    
+
     [Fact]
     public async Task SendAsync_ShouldPropagateCancellationToken()
     {
@@ -59,7 +59,7 @@ public class MediatorTest
         await cancellationTokenSource.CancelAsync();
 
         await Assert.ThrowsAsync<OperationCanceledException>(() => mediator.SendAsync(
-                new GetPlayerQuery(123), cancellationTokenSource.Token));
+            new GetPlayerQuery(123), cancellationTokenSource.Token));
     }
 
     private sealed record GetPlayerQuery(long PlayerId) : IQuery<long>;
@@ -82,7 +82,7 @@ public class MediatorTest
             return Task.FromResult(123L);
         }
     }
-    
+
     private sealed record DeletePlayerCommand : ICommand;
 
     private sealed class DeletePlayerCommandHandler : ICommandHandler<DeletePlayerCommand>

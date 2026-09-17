@@ -39,6 +39,17 @@ public static class DependencyInjection
                 var arguments = handlerInterface.GetGenericArguments();
 
                 var requestType = arguments[0];
+                if (definition == typeof(IStreamRequestHandler<,>))
+                {
+                    var resultType1 = arguments[1];
+
+                    var invokerType = typeof(StreamRequestHandlerInvoker<,>)
+                        .MakeGenericType(requestType, resultType1);
+
+                    services.AddTransient(invokerType);
+                    continue;
+                }
+
                 if (definition == typeof(INotificationHandler<>))
                 {
                     var invokerType = typeof(NotificationHandlerInvoker<>).MakeGenericType(requestType);
@@ -58,8 +69,8 @@ public static class DependencyInjection
                     definition != typeof(IRequestHandler<,>))
                     continue;
 
-                var resultType = arguments[1];
-                var pipelineInvokerType = typeof(PipelineHandlerInvoker<,>).MakeGenericType(requestType, resultType);
+                var resultType2 = arguments[1];
+                var pipelineInvokerType = typeof(PipelineHandlerInvoker<,>).MakeGenericType(requestType, resultType2);
                 services.AddTransient(pipelineInvokerType);
             }
         }
@@ -92,7 +103,8 @@ public static class DependencyInjection
                    definition == typeof(ICommandHandler<,>) ||
                    definition == typeof(IRequestHandler<>) ||
                    definition == typeof(IRequestHandler<,>) ||
-                   definition == typeof(INotificationHandler<>)
+                   definition == typeof(INotificationHandler<>) ||
+                   definition == typeof(IStreamRequestHandler<,>)
                );
     }
 

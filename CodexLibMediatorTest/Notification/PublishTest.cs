@@ -8,6 +8,8 @@ public class PublishTest
 {
     private static readonly List<string> ExecutionOrder = [];
 
+    public static bool Executed { get; private set; }
+
     [Fact]
     public async Task PublishAsync_Should_Invoke_Notification_Handler()
     {
@@ -98,10 +100,10 @@ public class PublishTest
 
         var notification = new CancellationNotification();
 
-        await Assert.ThrowsAsync<OperationCanceledException>(() => 
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
             mediator.PublishAsync(notification, cancellationTokenSource.Token));
     }
-    
+
     [Fact]
     public async Task PublishAsync_Should_Stop_Execution_When_Notification_Handler_Fails()
     {
@@ -115,8 +117,7 @@ public class PublishTest
         LastOrderedFailureHandler.Reset();
 
         var notification = new OrderedFailureNotification();
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => mediator.PublishAsync(notification));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.PublishAsync(notification));
 
         Assert.Equal("Notification handler failed.", exception.Message);
         Assert.True(FirstOrderedFailureHandler.WasExecuted);
@@ -188,27 +189,27 @@ public class PublishTest
             return Task.CompletedTask;
         }
     }
-    
+
     private sealed class OrderedFailureNotification : INotification
     {
     }
-    
+
     private sealed class FirstOrderedFailureHandler : INotificationHandler<OrderedFailureNotification>
     {
         public static bool WasExecuted { get; private set; }
-
-        public static void Reset()
-        {
-            WasExecuted = false;
-        }
 
         public Task HandleAsync(OrderedFailureNotification notification, CancellationToken cancellationToken)
         {
             WasExecuted = true;
             return Task.CompletedTask;
         }
+
+        public static void Reset()
+        {
+            WasExecuted = false;
+        }
     }
-    
+
     private sealed class FailingOrderedFailureHandler : INotificationHandler<OrderedFailureNotification>
     {
         public Task HandleAsync(OrderedFailureNotification notification, CancellationToken cancellationToken)
@@ -216,22 +217,20 @@ public class PublishTest
             throw new InvalidOperationException("Notification handler failed.");
         }
     }
-    
-    public static bool Executed { get; private set; }
-    
+
     private sealed class LastOrderedFailureHandler : INotificationHandler<OrderedFailureNotification>
     {
         public static bool WasExecuted { get; private set; }
-
-        public static void Reset()
-        {
-            WasExecuted = false;
-        }
 
         public Task HandleAsync(OrderedFailureNotification notification, CancellationToken cancellationToken)
         {
             WasExecuted = true;
             return Task.CompletedTask;
+        }
+
+        public static void Reset()
+        {
+            WasExecuted = false;
         }
     }
 }
