@@ -114,7 +114,8 @@ public static class DependencyInjection
                type.GetGenericTypeDefinition() is var definition &&
                (
                    definition == typeof(IPipelineBehavior<>) ||
-                   definition == typeof(IPipelineBehavior<,>)
+                   definition == typeof(IPipelineBehavior<,>) || 
+                   definition == typeof(IStreamPipelineBehavior<,>)
                );
     }
 }
