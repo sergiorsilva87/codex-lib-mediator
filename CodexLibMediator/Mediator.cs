@@ -8,10 +8,8 @@ namespace CodexLibMediator;
 internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 {
     private static readonly ConcurrentDictionary<Type, Type> NotificationInvokerTypes = new();
-
     private static readonly ConcurrentDictionary<Type, Type> RequestInvokerTypes = new();
     private static readonly ConcurrentDictionary<(Type Request, Type Result), Type> PipelineInvokerTypes = new();
-
     private static readonly ConcurrentDictionary<(Type Request, Type Result), Type> StreamInvokerTypes = new();
 
     public Task PublishAsync(INotification notification, CancellationToken cancellationToken = default)

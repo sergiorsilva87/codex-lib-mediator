@@ -38,9 +38,11 @@ public static class DependencyInjection
 
     private static void RegisterHandlers(IServiceCollection services, Assembly assembly)
     {
-        var handlerTypes = assembly.GetTypes().Where(type =>
+        var handlerTypes = assembly.GetTypes()
+            .Where(type =>
                 type is { IsClass: true, IsAbstract: false } &&
                 type.GetInterfaces().Any(IsHandlerInterface))
+            .OrderBy(type => type.FullName)
             .ToArray();
 
         foreach (var handlerType in handlerTypes)

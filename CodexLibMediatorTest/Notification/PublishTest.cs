@@ -37,7 +37,7 @@ public class PublishTest
         ExecutionOrder.Clear();
         await mediator.PublishAsync(notification);
 
-        Assert.Equal([nameof(TestNotificationHandler), nameof(SecondTestNotificationHandler)], ExecutionOrder);
+        Assert.Equal([nameof(SecondTestNotificationHandler), nameof(TestNotificationHandler)], ExecutionOrder);
         Assert.Equal("Hello Notification", TestNotificationHandler.ReceivedMessage);
         Assert.Equal("Hello Notification", SecondTestNotificationHandler.ReceivedMessage);
     }
@@ -108,7 +108,11 @@ public class PublishTest
     public async Task PublishAsync_Should_Stop_Execution_When_Notification_Handler_Fails()
     {
         var services = new ServiceCollection();
-        services.AddCodexMediator(typeof(FirstOrderedFailureHandler).Assembly);
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+        
+        services.AddTransient<INotificationHandler<OrderedFailureNotification>, FirstOrderedFailureHandler>();
+        services.AddTransient<INotificationHandler<OrderedFailureNotification>, FailingOrderedFailureHandler>();
+        services.AddTransient<INotificationHandler<OrderedFailureNotification>, LastOrderedFailureHandler>();
 
         var provider = services.BuildServiceProvider();
         var mediator = provider.GetRequiredService<IMediator>();
@@ -117,11 +121,35 @@ public class PublishTest
         LastOrderedFailureHandler.Reset();
 
         var notification = new OrderedFailureNotification();
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.PublishAsync(notification));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => 
+            mediator.PublishAsync(notification));
 
         Assert.Equal("Notification handler failed.", exception.Message);
         Assert.True(FirstOrderedFailureHandler.WasExecuted);
         Assert.False(LastOrderedFailureHandler.WasExecuted);
+    }
+    
+    [Fact]
+    public async Task PublishAsync_ShouldExecuteNotificationHandlersInDeterministicOrder()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(OrderedNotificationHandlerA).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        OrderedNotificationHandlerA.Reset();
+        OrderedNotificationHandlerB.Reset();
+
+        await mediator.PublishAsync(new OrderedNotification());
+
+        Assert.Equal(
+            [
+                nameof(OrderedNotificationHandlerA),
+                nameof(OrderedNotificationHandlerB)
+            ],
+            ExecutionOrder);
     }
 
     private sealed class TestNotification : INotification
@@ -231,6 +259,37 @@ public class PublishTest
         public static void Reset()
         {
             WasExecuted = false;
+        }
+    }
+    
+    private sealed class OrderedNotification : INotification
+    {
+    }
+    
+    private sealed class OrderedNotificationHandlerA : INotificationHandler<OrderedNotification>
+    {
+        public Task HandleAsync(OrderedNotification notification, CancellationToken cancellationToken)
+        {
+            ExecutionOrder.Add(nameof(OrderedNotificationHandlerA));
+            return Task.CompletedTask;
+        }
+
+        public static void Reset()
+        {
+            ExecutionOrder.Clear();
+        }
+    }
+    
+    private sealed class OrderedNotificationHandlerB : INotificationHandler<OrderedNotification>
+    {
+        public Task HandleAsync(OrderedNotification notification, CancellationToken cancellationToken)
+        {
+            ExecutionOrder.Add(nameof(OrderedNotificationHandlerB));
+            return Task.CompletedTask;
+        }
+
+        public static void Reset()
+        {
         }
     }
 }
