@@ -163,6 +163,45 @@ public class PublishTest
 
         await mediator.PublishAsync(new UnhandledNotification());
     }
+    
+    [Fact]
+    public async Task PublishAsync_ShouldExecuteNotificationHandlerTwice_WhenRegisteredTwice()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+        services.AddTransient<INotificationHandler<DuplicatedNotification>, DuplicatedNotificationHandler>();
+        services.AddTransient<INotificationHandler<DuplicatedNotification>, DuplicatedNotificationHandler>();
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        DuplicatedNotificationHandler.Reset();
+        await mediator.PublishAsync(new DuplicatedNotification());
+
+        Assert.Equal(2, DuplicatedNotificationHandler.ExecutionCount);
+    }
+    
+    [Fact]
+    public async Task PublishAsync_ShouldExecuteNotificationHandlerTwice_WhenMediatorIsRegisteredTwice()
+    {
+        var services = new ServiceCollection();
+
+        var assembly = typeof(DuplicatedRegistrationNotificationHandler).Assembly;
+
+        services.AddCodexMediator(assembly);
+        services.AddCodexMediator(assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        DuplicatedRegistrationNotificationHandler.Reset();
+
+        await mediator.PublishAsync(new DuplicatedRegistrationNotification());
+
+        Assert.Equal(2, DuplicatedRegistrationNotificationHandler.ExecutionCount);
+    }
 
     private sealed class TestNotification : INotification
     {
@@ -302,6 +341,48 @@ public class PublishTest
 
         public static void Reset()
         {
+        }
+    }
+    
+    private sealed class DuplicatedNotification : INotification
+    {
+    }
+
+    private sealed class DuplicatedNotificationHandler : INotificationHandler<DuplicatedNotification>
+    {
+        public static int ExecutionCount { get; private set; }
+
+        public Task HandleAsync(DuplicatedNotification notification, CancellationToken cancellationToken)
+        {
+            ExecutionCount++;
+            return Task.CompletedTask;
+        }
+
+        public static void Reset()
+        {
+            ExecutionCount = 0;
+        }
+    }
+    
+    private sealed class DuplicatedRegistrationNotification : INotification
+    {
+    }
+
+    private sealed class DuplicatedRegistrationNotificationHandler : INotificationHandler<DuplicatedRegistrationNotification>
+    {
+        private static int _executionCount;
+
+        public static int ExecutionCount => _executionCount;
+
+        public static void Reset()
+        {
+            _executionCount = 0;
+        }
+
+        public Task HandleAsync(DuplicatedRegistrationNotification notification, CancellationToken cancellationToken)
+        {
+            _executionCount++;
+            return Task.CompletedTask;
         }
     }
 }

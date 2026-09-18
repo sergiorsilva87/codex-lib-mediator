@@ -305,6 +305,55 @@ public class PipelineBehaviorTest
             ],
             execution);
     }
+    
+    [Fact]
+    public async Task SendAsync_ShouldExecutePipelineBehaviorTwice_WhenRegisteredTwice()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(DuplicatedBehaviorRequestHandler).Assembly, options =>
+        {
+            options.AddBehavior<DuplicatedBehavior>();
+            options.AddBehavior<DuplicatedBehavior>();
+        });
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        DuplicatedBehavior.Reset();
+
+        await mediator.SendAsync(new DuplicatedBehaviorRequest());
+        Assert.Equal(2, DuplicatedBehavior.ExecutionCount);
+    }
+    
+    [Fact]
+    public void AddCodexMediator_ShouldIgnoreInvalidBehaviorType()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(IMediator).Assembly, options =>
+        {
+            options.AddBehavior<InvalidBehavior>();
+        });
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        Assert.NotNull(mediator);
+    }
+    
+    [Fact]
+    public async Task SendAsync_ShouldRegisterAutomaticallyScannedBehaviors_WhenExplicitConfigurationIsEmpty()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(EmptyConfigurationRequest).Assembly, _ => { });
+        
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        EmptyConfigurationBehavior.Reset();
+
+        await mediator.SendAsync(new EmptyConfigurationRequest());
+        Assert.Equal(1, EmptyConfigurationBehavior.ExecutionCount);
+    }
 
     private sealed record UnregisteredQuery : IQuery<long>;
 
@@ -579,6 +628,73 @@ public class PipelineBehaviorTest
             execution.Add("Behavior-Before");
             await next();
             execution.Add("Behavior-After");
+        }
+    }
+    
+    private sealed class DuplicatedBehaviorRequest : IRequest
+    {
+    }
+
+    private sealed class DuplicatedBehaviorRequestHandler : IRequestHandler<DuplicatedBehaviorRequest>
+    {
+        public Task HandleAsync(DuplicatedBehaviorRequest request, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class DuplicatedBehavior : IPipelineBehavior<DuplicatedBehaviorRequest>
+    {
+        public static int ExecutionCount { get; private set; }
+
+        public Task HandleAsync(DuplicatedBehaviorRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            ExecutionCount++;
+            return next();
+        }
+
+        public static void Reset()
+        {
+            ExecutionCount = 0;
+        }
+    }
+    
+    private sealed class InvalidBehavior
+    {
+    }
+    
+    private sealed class EmptyConfigurationRequest : IRequest
+    {
+    }
+
+    private sealed class EmptyConfigurationRequestHandler
+        : IRequestHandler<EmptyConfigurationRequest>
+    {
+        public Task HandleAsync(
+            EmptyConfigurationRequest request,
+            CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class EmptyConfigurationBehavior : IPipelineBehavior<EmptyConfigurationRequest>
+    {
+        private static int _executionCount;
+
+        public static int ExecutionCount => _executionCount;
+
+        public static void Reset()
+        {
+            _executionCount = 0;
+        }
+
+        public async Task HandleAsync(EmptyConfigurationRequest request, CancellationToken cancellationToken, 
+            RequestHandlerDelegate next)
+        {
+            _executionCount++;
+
+            await next();
         }
     }
 }

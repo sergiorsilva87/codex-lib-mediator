@@ -170,6 +170,19 @@ public class StreamTest
             ],
             MultipleStreamBehaviorEvents.Events);
     }
+    
+    [Fact]
+    public async Task StreamAsync_ShouldThrow_WhenStreamRequestHandlerInvokerIsNotRegistered()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        Assert.Throws<InvalidOperationException>(() =>
+            mediator.StreamAsync(new UnhandledStreamRequest()));
+    }
 
     private sealed class TestStreamRequest : IStreamRequest<int>
     {
@@ -313,11 +326,9 @@ public class StreamTest
     {
     }
 
-    private sealed class MultipleStreamBehaviorsHandler
-        : IStreamRequestHandler<MultipleStreamBehaviorsRequest, int>
+    private sealed class MultipleStreamBehaviorsHandler : IStreamRequestHandler<MultipleStreamBehaviorsRequest, int>
     {
-        public async IAsyncEnumerable<int> HandleAsync(
-            MultipleStreamBehaviorsRequest request,
+        public async IAsyncEnumerable<int> HandleAsync(MultipleStreamBehaviorsRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             MultipleStreamBehaviorEvents.Events.Add("Handler");
@@ -335,8 +346,7 @@ public class StreamTest
         public static List<string> Events { get; } = [];
     }
 
-    private sealed class MultipleStreamBehavior1
-        : IStreamPipelineBehavior<MultipleStreamBehaviorsRequest, int>
+    private sealed class MultipleStreamBehavior1 : IStreamPipelineBehavior<MultipleStreamBehaviorsRequest, int>
     {
         public async IAsyncEnumerable<int> HandleAsync(MultipleStreamBehaviorsRequest request,
             [EnumeratorCancellation] CancellationToken cancellationToken,
@@ -360,5 +370,9 @@ public class StreamTest
 
             MultipleStreamBehaviorEvents.Events.Add("Behavior2-After");
         }
+    }
+    
+    private sealed class UnhandledStreamRequest : IStreamRequest<string>
+    {
     }
 }

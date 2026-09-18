@@ -125,6 +125,32 @@ public class MediatorTest
 
         Assert.Equal("request", exception.ParamName);
     }
+    
+    [Fact]
+    public async Task SendAsync_ShouldThrow_WhenRequestHandlerIsNotRegistered()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => mediator.SendAsync(new UnhandledRequest()));
+    }
+    
+    [Fact]
+    public async Task SendAsync_ShouldThrow_WhenRequestWithResultHandlerIsNotRegistered()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            mediator.SendAsync(new UnhandledRequestWithResult()));
+    }
 
     private sealed record GetPlayerQuery(long PlayerId) : IQuery<long>;
 
@@ -155,5 +181,13 @@ public class MediatorTest
         {
             return Task.CompletedTask;
         }
+    }
+    
+    private sealed class UnhandledRequest : IRequest
+    {
+    }
+    
+    private sealed class UnhandledRequestWithResult : IRequest<string>
+    {
     }
 }
