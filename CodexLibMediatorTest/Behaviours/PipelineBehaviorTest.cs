@@ -276,6 +276,35 @@ public class PipelineBehaviorTest
             ],
             behaviors.Select(x => x.GetType()));
     }
+    
+    [Fact]
+    public async Task SendAsync_ShouldExecuteExplicitlyConfiguredBehaviorsInRegistrationOrder()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator(typeof(MultipleBehaviorQueryHandler).Assembly, options =>
+        {
+            options.AddBehavior<ValidationBehavior>();
+            options.AddBehavior<LoggingBehavior>();
+        });
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var result = await mediator.SendAsync(new MultipleBehaviorQuery(123));
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(123, result);
+        Assert.Equal(
+            [
+                "Validation-Before",
+                "Logging-Before",
+                "Handler",
+                "Logging-After",
+                "Validation-After"
+            ],
+            execution);
+    }
 
     private sealed record UnregisteredQuery : IQuery<long>;
 
