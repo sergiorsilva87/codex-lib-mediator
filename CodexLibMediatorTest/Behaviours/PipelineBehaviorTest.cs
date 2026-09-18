@@ -285,10 +285,27 @@ public class PipelineBehaviorTest
         await mediator.SendAsync(new EmptyConfigurationRequest());
         Assert.Equal(1, EmptyConfigurationBehavior.ExecutionCount);
     }
+    
+    [Fact]
+    public async Task SendAsync_ShouldExecuteOnlyExplicitlyConfiguredBehaviors()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<List<string>>();
+        services.AddCodexMediator( typeof(ExplicitBehaviorRequestHandler).Assembly, options =>
+        {
+            options.AddBehavior<ExplicitBehavior>();
+        });
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        
+        await mediator.SendAsync(new ExplicitBehaviorRequest());
+        var execution = serviceProvider.GetRequiredService<List<string>>();
+
+        Assert.Equal(["ExplicitBehavior", "Handler" ], execution);
+    }
 
     private sealed record UnregisteredQuery : IQuery<long>;
-
-
 
     // ============================================================
     // One Behavior
@@ -550,6 +567,35 @@ public class PipelineBehaviorTest
         {
             _executionCount++;
 
+            await next();
+        }
+    }
+    
+    private sealed record ExplicitBehaviorRequest : IRequest;
+
+    private sealed class ExplicitBehaviorRequestHandler(List<string> execution) : IRequestHandler<ExplicitBehaviorRequest>
+    {
+        public Task HandleAsync(ExplicitBehaviorRequest request, CancellationToken cancellationToken)
+        {
+            execution.Add("Handler");
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class ExplicitBehavior(List<string> execution) : IPipelineBehavior<ExplicitBehaviorRequest>
+    {
+        public async Task HandleAsync(ExplicitBehaviorRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("ExplicitBehavior");
+            await next();
+        }
+    }
+
+    private sealed class AutomaticallyScannedBehavior(List<string> execution) : IPipelineBehavior<ExplicitBehaviorRequest>
+    {
+        public async Task HandleAsync(ExplicitBehaviorRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next)
+        {
+            execution.Add("AutomaticallyScannedBehavior");
             await next();
         }
     }
