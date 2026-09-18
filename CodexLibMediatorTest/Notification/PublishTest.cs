@@ -151,6 +151,18 @@ public class PublishTest
             ],
             ExecutionOrder);
     }
+    
+    [Fact]
+    public async Task PublishAsync_Should_Complete_When_Assembly_Has_No_Notification_Handler()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        await mediator.PublishAsync(new UnhandledNotification());
+    }
 
     private sealed class TestNotification : INotification
     {

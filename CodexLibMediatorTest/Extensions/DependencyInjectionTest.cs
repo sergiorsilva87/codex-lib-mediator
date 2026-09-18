@@ -64,6 +64,18 @@ public class DependencyInjectionTest
 
         Assert.Equal("configure", exception.ParamName);
     }
+    
+    [Fact]
+    public void AddCodexMediator_ShouldWork_WhenAssemblyHasNoHandlers()
+    {
+        var services = new ServiceCollection();
+        services.AddCodexMediator(typeof(IMediator).Assembly);
+
+        using var provider = services.BuildServiceProvider();
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        Assert.NotNull(mediator);
+    }
 
     private sealed record GetPlayerQuery : IQuery<long>;
 
