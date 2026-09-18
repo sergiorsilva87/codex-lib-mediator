@@ -1,5 +1,6 @@
 namespace CodexLibMediator.Extensions;
 
+
 public sealed class CodexMediatorOptions
 {
     internal List<Type> BehaviorTypes { get; } = [];

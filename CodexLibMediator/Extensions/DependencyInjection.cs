@@ -7,14 +7,12 @@ namespace CodexLibMediator.Extensions;
 
 public static class DependencyInjection
 {
-    internal List<Type> BehaviorTypes { get; } = [];
-    
     public static IServiceCollection AddCodexMediator(this IServiceCollection services, Assembly assembly)
     {
         services.AddScoped<IMediator, Mediator>();
 
         RegisterHandlers(services, assembly);
-        RegisterBehaviors(services, assembly);
+        RegisterBehaviors(services, assembly, null);
         return services;
     }
     
@@ -30,12 +28,6 @@ public static class DependencyInjection
         RegisterBehaviors(services, assembly, options);
         return services;
     }
-    
-    public CodexMediatorOptions AddBehavior<TBehavior>() where TBehavior : class
-    {
-        BehaviorTypes.Add(typeof(TBehavior));
-        return this;
-    }
 
     private static void RegisterHandlers(IServiceCollection services, Assembly assembly)
     {
@@ -46,9 +38,7 @@ public static class DependencyInjection
 
         foreach (var handlerType in handlerTypes)
         {
-            var interfaces = handlerType
-                .GetInterfaces().Where(IsHandlerInterface);
-
+            var interfaces = handlerType.GetInterfaces().Where(IsHandlerInterface);
             foreach (var handlerInterface in interfaces)
             {
                 services.AddTransient(handlerInterface, handlerType);
