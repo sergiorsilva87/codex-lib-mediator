@@ -4,6 +4,15 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <PackageId>CodexLibMediator</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Sérgio Roberto da Silva</Authors>
+        <Description>Mediator library for .NET 10 with support for Requests, Commands, Queries, Notifications, Streams and Pipeline Behaviors.</Description>
+        <PackageTags>mediator;mediator-pattern;pipeline;notifications;commands;queries;streaming;dotnet</PackageTags>
+        <RepositoryUrl>https://github.com/sergiorsilva87/codex-lib-mediator</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
