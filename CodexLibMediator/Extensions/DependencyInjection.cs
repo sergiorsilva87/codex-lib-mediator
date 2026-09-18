@@ -9,6 +9,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddCodexMediator(this IServiceCollection services, Assembly assembly)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(assembly);
+        
         services.AddScoped<IMediator, Mediator>();
 
         RegisterHandlers(services, assembly);
@@ -19,6 +22,10 @@ public static class DependencyInjection
     public static IServiceCollection AddCodexMediator(this IServiceCollection services,
         Assembly assembly, Action<CodexMediatorOptions> configure)
     {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(assembly);
+        ArgumentNullException.ThrowIfNull(configure);
+        
         services.AddScoped<IMediator, Mediator>();
         RegisterHandlers(services, assembly);
 

@@ -16,6 +16,8 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 
     public Task PublishAsync(INotification notification, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(notification);
+        
         var notificationType = notification.GetType();
         var invokerType = NotificationInvokerTypes.GetOrAdd(
             notificationType, static type => typeof(NotificationHandlerInvoker<>).MakeGenericType(type));
@@ -26,6 +28,8 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 
     public Task SendAsync(IRequest request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        
         var requestType = request.GetType();
         var invokerType = RequestInvokerTypes.GetOrAdd(requestType, static type =>
             typeof(PipelineHandlerInvoker<>).MakeGenericType(type));
@@ -36,6 +40,8 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 
     public Task<TResult> SendAsync<TResult>(IRequest<TResult> request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        
         var requestType = request.GetType();
         var invokerType = PipelineInvokerTypes.GetOrAdd((requestType, typeof(TResult)), static key =>
             typeof(PipelineHandlerInvoker<,>).MakeGenericType(key.Request, key.Result));
@@ -46,6 +52,8 @@ internal sealed class Mediator(IServiceProvider serviceProvider) : IMediator
 
     public IAsyncEnumerable<TResult> StreamAsync<TResult>(IStreamRequest<TResult> request, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(request);
+        
         var requestType = request.GetType();
         var invokerType = StreamInvokerTypes.GetOrAdd(
             (requestType, typeof(TResult)), static key =>

@@ -29,6 +29,41 @@ public class DependencyInjectionTest
         var handler = serviceProvider.GetService<IQueryHandler<GetPlayerQuery, long>>();
         Assert.NotNull(handler);
     }
+    
+    [Fact]
+    public void AddCodexMediator_ShouldThrowWhenServicesIsNull()
+    {
+        IServiceCollection services = null!;
+
+        var exception = Assert.Throws<ArgumentNullException>(() =>
+            services.AddCodexMediator(typeof(GetPlayerQueryHandler).Assembly));
+
+        Assert.Equal("services", exception.ParamName);
+    }
+    
+    [Fact]
+    public void AddCodexMediator_ShouldThrowWhenAssemblyIsNull()
+    {
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<ArgumentNullException>(() =>
+            services.AddCodexMediator(null!));
+
+        Assert.Equal("assembly", exception.ParamName);
+    }
+    
+    [Fact]
+    public void AddCodexMediator_ShouldThrowWhenConfigureIsNull()
+    {
+        var services = new ServiceCollection();
+
+        var exception = Assert.Throws<ArgumentNullException>(() =>
+            services.AddCodexMediator(
+                typeof(GetPlayerQueryHandler).Assembly,
+                null!));
+
+        Assert.Equal("configure", exception.ParamName);
+    }
 
     private sealed record GetPlayerQuery : IQuery<long>;
 

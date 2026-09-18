@@ -61,6 +61,70 @@ public class MediatorTest
         await Assert.ThrowsAsync<OperationCanceledException>(() => mediator.SendAsync(
             new GetPlayerQuery(123), cancellationTokenSource.Token));
     }
+    
+    [Fact]
+    public async Task SendAsync_ShouldThrowWhenRequestIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(GetPlayerQueryHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(
+            () => mediator.SendAsync((IRequest)null!));
+
+        Assert.Equal("request", exception.ParamName);
+    }
+    
+    [Fact]
+    public async Task SendAsync_ShouldThrowWhenRequestWithResultIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(GetPlayerQueryHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(
+            () => mediator.SendAsync<long>((IRequest<long>)null!));
+
+        Assert.Equal("request", exception.ParamName);
+    }
+    
+    [Fact]
+    public async Task PublishAsync_ShouldThrowWhenNotificationIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(GetPlayerQueryHandler).Assembly);
+
+        await using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(
+            () => mediator.PublishAsync((INotification)null!));
+
+        Assert.Equal("notification", exception.ParamName);
+    }
+    
+    [Fact]
+    public void StreamAsync_ShouldThrowWhenRequestIsNull()
+    {
+        var services = new ServiceCollection();
+
+        services.AddCodexMediator(typeof(GetPlayerQueryHandler).Assembly);
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+
+        var exception = Assert.Throws<ArgumentNullException>(
+            () => mediator.StreamAsync<long>((IStreamRequest<long>)null!));
+
+        Assert.Equal("request", exception.ParamName);
+    }
 
     private sealed record GetPlayerQuery(long PlayerId) : IQuery<long>;
 
