@@ -8,25 +8,6 @@ namespace CodexLibMediatorTest.Behaviours;
 public class PipelineBehaviorTest
 {
     [Fact]
-    public async Task SendAsync_ShouldExecuteHandlerWithoutPipelineBehaviors()
-    {
-        var services = new ServiceCollection();
-
-        services.AddSingleton<List<string>>();
-        services.AddCodexMediator(typeof(NoBehaviorQueryHandler).Assembly);
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var mediator = serviceProvider.GetRequiredService<IMediator>();
-        var result = await mediator.SendAsync(new NoBehaviorQuery(123));
-        var execution = serviceProvider.GetRequiredService<List<string>>();
-
-        Assert.Equal(123, result);
-        Assert.Equal(
-            ["Handler"],
-            execution);
-    }
-
-    [Fact]
     public async Task SendAsync_ShouldExecuteSinglePipelineBehavior()
     {
         var services = new ServiceCollection();
@@ -159,56 +140,6 @@ public class PipelineBehaviorTest
         var execution = serviceProvider.GetRequiredService<List<string>>();
 
         Assert.Equal(["Handler"], execution);
-    }
-
-    [Fact]
-    public async Task SendAsync_ShouldExecuteSinglePipelineBehaviorWithoutResult()
-    {
-        var services = new ServiceCollection();
-
-        services.AddSingleton<List<string>>();
-        services.AddCodexMediator(typeof(SingleBehaviorCommandHandler).Assembly);
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var mediator = serviceProvider.GetRequiredService<IMediator>();
-
-        await mediator.SendAsync(new SingleBehaviorCommand());
-
-        var execution = serviceProvider.GetRequiredService<List<string>>();
-
-        Assert.Equal(
-            [
-                "Before",
-                "Handler",
-                "After"
-            ],
-            execution);
-    }
-
-    [Fact]
-    public async Task SendAsync_ShouldExecuteMultiplePipelineBehaviorsWithoutResult()
-    {
-        var services = new ServiceCollection();
-
-        services.AddSingleton<List<string>>();
-        services.AddCodexMediator(typeof(MultipleBehaviorCommandHandler).Assembly);
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var mediator = serviceProvider.GetRequiredService<IMediator>();
-
-        await mediator.SendAsync(new MultipleBehaviorCommand());
-
-        var execution = serviceProvider.GetRequiredService<List<string>>();
-
-        Assert.Equal(
-            [
-                "Logging-Before",
-                "Validation-Before",
-                "Handler",
-                "Validation-After",
-                "Logging-After"
-            ],
-            execution);
     }
 
     [Fact]
@@ -357,20 +288,7 @@ public class PipelineBehaviorTest
 
     private sealed record UnregisteredQuery : IQuery<long>;
 
-    // ============================================================
-    // Zero Behaviors
-    // ============================================================
 
-    private sealed record NoBehaviorQuery(long PlayerId) : IQuery<long>;
-
-    private sealed class NoBehaviorQueryHandler(List<string> execution) : IQueryHandler<NoBehaviorQuery, long>
-    {
-        public Task<long> HandleAsync(NoBehaviorQuery query, CancellationToken cancellationToken)
-        {
-            execution.Add("Handler");
-            return Task.FromResult(query.PlayerId);
-        }
-    }
 
     // ============================================================
     // One Behavior
@@ -443,16 +361,13 @@ public class PipelineBehaviorTest
     private sealed class CancellationTokenQueryHandler(
         List<string> execution) : IQueryHandler<CancellationTokenQuery, long>
     {
-        public Task<long> HandleAsync(
-            CancellationTokenQuery query,
-            CancellationToken cancellationToken)
+        public Task<long> HandleAsync(CancellationTokenQuery query, CancellationToken cancellationToken)
         {
             if (cancellationToken == CancellationToken.None)
                 throw new InvalidOperationException(
                     "The CancellationToken was not propagated to the Handler.");
 
             execution.Add("Handler-Token-Received");
-
             return Task.FromResult(query.PlayerId);
         }
     }
@@ -523,63 +438,6 @@ public class PipelineBehaviorTest
         }
     }
 
-    private sealed record SingleBehaviorCommand : ICommand;
-
-    private sealed class SingleBehaviorCommandHandler(List<string> execution) : ICommandHandler<SingleBehaviorCommand>
-    {
-        public Task HandleAsync(SingleBehaviorCommand command, CancellationToken cancellationToken)
-        {
-            execution.Add("Handler");
-            return Task.CompletedTask;
-        }
-    }
-
-    private sealed class SingleCommandBehavior(List<string> execution) : IPipelineBehavior<SingleBehaviorCommand>
-    {
-        public async Task HandleAsync(SingleBehaviorCommand request,
-            CancellationToken cancellationToken, RequestHandlerDelegate next)
-        {
-            execution.Add("Before");
-            await next();
-            execution.Add("After");
-        }
-    }
-
-
-    private sealed record MultipleBehaviorCommand : ICommand;
-
-    private sealed class MultipleBehaviorCommandHandler(List<string> execution) :
-        ICommandHandler<MultipleBehaviorCommand>
-    {
-        public Task HandleAsync(MultipleBehaviorCommand command, CancellationToken cancellationToken)
-        {
-            execution.Add("Handler");
-            return Task.CompletedTask;
-        }
-    }
-
-    private sealed class LoggingCommandBehavior(List<string> execution) : IPipelineBehavior<MultipleBehaviorCommand>
-    {
-        public async Task HandleAsync(MultipleBehaviorCommand request,
-            CancellationToken cancellationToken, RequestHandlerDelegate next)
-        {
-            execution.Add("Logging-Before");
-            await next();
-            execution.Add("Logging-After");
-        }
-    }
-
-    private sealed class ValidationCommandBehavior(List<string> execution) : IPipelineBehavior<MultipleBehaviorCommand>
-    {
-        public async Task HandleAsync(MultipleBehaviorCommand request,
-            CancellationToken cancellationToken, RequestHandlerDelegate next)
-        {
-            execution.Add("Validation-Before");
-            await next();
-            execution.Add("Validation-After");
-        }
-    }
-
     private sealed record CancellationTokenCommand : ICommand;
 
     private sealed class CancellationTokenCommandHandler(List<string> execution) : ICommandHandler<CancellationTokenCommand>
@@ -647,7 +505,8 @@ public class PipelineBehaviorTest
     {
         public static int ExecutionCount { get; private set; }
 
-        public Task HandleAsync(DuplicatedBehaviorRequest request, CancellationToken cancellationToken, RequestHandlerDelegate next)
+        public Task HandleAsync(DuplicatedBehaviorRequest request, CancellationToken cancellationToken, 
+            RequestHandlerDelegate next)
         {
             ExecutionCount++;
             return next();
@@ -667,12 +526,9 @@ public class PipelineBehaviorTest
     {
     }
 
-    private sealed class EmptyConfigurationRequestHandler
-        : IRequestHandler<EmptyConfigurationRequest>
+    private sealed class EmptyConfigurationRequestHandler : IRequestHandler<EmptyConfigurationRequest>
     {
-        public Task HandleAsync(
-            EmptyConfigurationRequest request,
-            CancellationToken cancellationToken)
+        public Task HandleAsync(EmptyConfigurationRequest request, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

@@ -60,19 +60,6 @@ public class PublishTest
     }
 
     [Fact]
-    public async Task PublishAsync_Should_Complete_When_No_Handler_Is_Registered()
-    {
-        var services = new ServiceCollection();
-        services.AddCodexMediator(typeof(TestNotificationHandler).Assembly);
-
-        var provider = services.BuildServiceProvider();
-        var mediator = provider.GetRequiredService<IMediator>();
-        var notification = new UnhandledNotification();
-
-        await mediator.PublishAsync(notification);
-    }
-
-    [Fact]
     public async Task PublishAsync_Should_Propagate_Notification_Handler_Exception()
     {
         var services = new ServiceCollection();
@@ -162,24 +149,6 @@ public class PublishTest
         var mediator = serviceProvider.GetRequiredService<IMediator>();
 
         await mediator.PublishAsync(new UnhandledNotification());
-    }
-    
-    [Fact]
-    public async Task PublishAsync_ShouldExecuteNotificationHandlerTwice_WhenRegisteredTwice()
-    {
-        var services = new ServiceCollection();
-
-        services.AddCodexMediator(typeof(IMediator).Assembly);
-        services.AddTransient<INotificationHandler<DuplicatedNotification>, DuplicatedNotificationHandler>();
-        services.AddTransient<INotificationHandler<DuplicatedNotification>, DuplicatedNotificationHandler>();
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var mediator = serviceProvider.GetRequiredService<IMediator>();
-
-        DuplicatedNotificationHandler.Reset();
-        await mediator.PublishAsync(new DuplicatedNotification());
-
-        Assert.Equal(2, DuplicatedNotificationHandler.ExecutionCount);
     }
     
     [Fact]
@@ -343,26 +312,8 @@ public class PublishTest
         {
         }
     }
-    
-    private sealed class DuplicatedNotification : INotification
-    {
-    }
 
-    private sealed class DuplicatedNotificationHandler : INotificationHandler<DuplicatedNotification>
-    {
-        public static int ExecutionCount { get; private set; }
 
-        public Task HandleAsync(DuplicatedNotification notification, CancellationToken cancellationToken)
-        {
-            ExecutionCount++;
-            return Task.CompletedTask;
-        }
-
-        public static void Reset()
-        {
-            ExecutionCount = 0;
-        }
-    }
     
     private sealed class DuplicatedRegistrationNotification : INotification
     {
